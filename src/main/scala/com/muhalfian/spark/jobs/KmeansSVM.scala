@@ -106,6 +106,10 @@ object KmeansSVM extends StreamUtils {
     val training = splits(0).cache()
     val test = splits(1).cache()
 
+    test = test.map(
+      t => (t._2, t._1)
+    )
+
     val training_labeled = training.map(
       t => (t._2, hashingTF.transform(t._1))
     ).map(
