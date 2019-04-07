@@ -37,11 +37,11 @@ object SVMChandra extends StreamUtils {
       }
     )
 
-    val splits = rawTweets.randomSplit(Array(0.6, 0.4), seed = 11L)
+    val splits = rawTweets.randomSplit(Array(0.7, 0.3), seed = 11L)
     val training = splits(0).cache()
     val test = splits(1).cache()
 
-    val hashingTF = new HashingTF()
+    val hashingTF = new HashingTF(10000)
 
     val training_labeled = training.map(
       t => (t._1, hashingTF.transform(t._2))
