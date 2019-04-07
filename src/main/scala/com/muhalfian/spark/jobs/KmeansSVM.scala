@@ -102,7 +102,11 @@ object KmeansSVM extends StreamUtils {
 
     // ================= SVM ====================
 
-    val training_labeled = labeledTweets.map(
+    val splits = labeledTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
+    val training = splits(0).cache()
+    val test = splits(1).cache()
+
+    val training_labeled = training.map(
       t => (t._2, hashingTF.transform(t._1))
     ).map(
       x => new LabeledPoint((x._1).toDouble, x._2)
