@@ -104,9 +104,7 @@ object KmeansSVM extends StreamUtils {
 
     val splits = labeledTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
     val training = splits(0).cache()
-    val test = splits(1).cache()
-
-    test = test.map(
+    val test = splits(1).map(
       t => (t._2, t._1)
     )
 
