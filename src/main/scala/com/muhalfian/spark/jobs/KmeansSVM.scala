@@ -104,7 +104,15 @@ object KmeansSVM extends StreamUtils {
     labeledTweets.collect.foreach(println)
     // ================= SVM ====================
 
-    val splits = labeledTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
+    val rawTweetsSVM = labeledTweets.map(
+      row => {
+        // val label = row.getLong(0)
+        // val tweets = row.getString(2)
+        (row._2, row._1.split(" ").toSeq)
+      }
+    )
+
+    val splits = rawTweetsSVM.randomSplit(Array(0.8, 0.2), seed = 11L)
     val training = splits(0).cache()
     val test = splits(1).map(
       t => (t._2, t._1)
