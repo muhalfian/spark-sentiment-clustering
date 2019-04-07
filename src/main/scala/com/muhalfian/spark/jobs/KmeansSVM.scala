@@ -108,7 +108,7 @@ object KmeansSVM extends StreamUtils {
       row => {
         // val label = row.getLong(0)
         // val tweets = row.getString(2)
-        (row._2, row._1.split(" ").toSeq)
+        (row._1.split(" ").toSeq, row._2)
       }
     )
 
