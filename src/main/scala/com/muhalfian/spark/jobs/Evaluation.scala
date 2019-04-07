@@ -25,8 +25,8 @@ object Evaluation extends StreamUtils {
     import SparkSession.implicits._
 
 
-    val tweetsDF = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/resentiment_agg.json")
-    val tweetsDFTesting = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/chandra_training_result.json")
+    val tweetsDF = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/db/resentiment_agg.json")
+    val tweetsDFTesting = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res.json")
     //val spark : SparkSession = SparkSession.builder.master("local[*]").getOrCreate
 
     val tweetsRDD = tweetsDF.rdd

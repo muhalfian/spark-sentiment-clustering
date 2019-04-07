@@ -27,7 +27,7 @@ object Preprocessing extends StreamUtils {
 
     val numClusters = 3
     val numIterations = 100
-    val tweetsDF = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/chandra_training.json")
+    val tweetsDF = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training.json")
 
     println(tweetsDF)
 
@@ -102,7 +102,7 @@ val labeledTweets = finalTweets.map{ case(tweet) =>
 
 val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
 
-labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/chandra_training_res.json")
+labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res.json")
 
   }
 }
