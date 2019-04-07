@@ -102,7 +102,7 @@ val labeledTweets = finalTweets.map{ case(tweet) =>
 
 val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
 
-labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res.json")
+labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res_2.json")
 
   }
 }
