@@ -111,7 +111,7 @@ object KmeansSVM extends StreamUtils {
     println("\n\n************** Training **************\n\n")
 
     // Run training algorithm to build the model
-    val model = new LogisticRegressionWithLBFGS()
+    val modelSVM = new LogisticRegressionWithLBFGS()
        .setNumClasses(3)
        .run(training_labeled)
 
@@ -119,7 +119,7 @@ object KmeansSVM extends StreamUtils {
 
     val predictionAndLabels = test.map(
       x => {
-        val prediction = model.predict(hashingTF.transform(x._2))
+        val prediction = modelSVM.predict(hashingTF.transform(x._2))
         (prediction, x._1.toDouble)
       }
     )
