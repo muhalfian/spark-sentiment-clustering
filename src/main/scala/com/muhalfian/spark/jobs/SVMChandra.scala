@@ -17,7 +17,7 @@ import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.mllib.util.MLUtils
 
-object SVM extends StreamUtils {
+object SVMChandra extends StreamUtils {
 
   def main(args: Array[String]): Unit = {
 
@@ -29,7 +29,7 @@ object SVM extends StreamUtils {
 
     val tweetsRDD = tweetsDF.rdd
 
-    val bagOfWord = tweetsRDD.map(
+    val rawTweets = tweetsRDD.map(
       row => {
         val label = row.getLong(0)
         val tweets = row.getString(2)
@@ -37,7 +37,7 @@ object SVM extends StreamUtils {
       }
     )
 
-    val splits = bagOfWord.randomSplit(Array(0.8, 0.2), seed = 11L)
+    val splits = rawTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
     val training = splits(0).cache()
     val test = splits(1).cache()
 
@@ -102,7 +102,7 @@ object SVM extends StreamUtils {
     labels.foreach { l =>
       println(s"Recall($l) = " + metrics.recall(l))
     }
-
+ 
     // False positive rate by label
     labels.foreach { l =>
       println(s"FPR($l) = " + metrics.falsePositiveRate(l))

@@ -31,37 +31,39 @@ object Kmeans extends StreamUtils {
 
     val tweetsRDD = tweetsDF.rdd
 
-    val bagOfWord = tweetsRDD.map(
+    val rawTweets = tweetsRDD.map(
       row => {
         val label = row.getLong(0)
         val tweets = row.getString(2)
         (label, tweets.split(" ").toSeq)
       }
     )
-
-    // val splits = bagOfWord.randomSplit(Array(0.8, 0.2), seed = 11L)
+ 
+    // val splits = rawTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
     // val training = splits(0).cache()
     // val test = splits(1).cache()
 
     val hashingTF = new HashingTF(2000)
 
-    // val vectors = bagOfWord.map(
+    // val vectors = rawTweets.map(
     //   t => (hashingTF.transform(t.sliding(3).toSeq))
     // ).cache()
     // vectors.count()
 
-    val vectors = bagOfWord.map(
+    val vectors = rawTweets.map(
       t => (hashingTF.transform(t._2))
     ).cache()
     vectors.count()
 
+    val numClusters = 3
+    val numIterations = 100
     val model = KMeans.train(vectors, numClusters, numIterations)
 
-    val labeledTweets = bagOfWord.map{ case(tweet) =>
-      (tweet, model.predict(hashingTF.transform(tweet.sliding(3).toSeq)))
-    }
-
-    val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
+    // val labeledTweets = rawTweets.map{ row =>
+    //   (row._1, model.predict(hashingTF.transform(row._2), row._2))
+    // }
+    //
+    // val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
 
 
   }
