@@ -25,8 +25,8 @@ object Evaluation extends StreamUtils {
     import SparkSession.implicits._
 
 
-    val tweetsDF = SparkSession.read.json("/home/blade1/resentiment_agg.json")
-    val tweetsDFTesting = SparkSession.read.json("/home/blade1/chandra_training_result.json")
+    val tweetsDF = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/resentiment_agg.json")
+    val tweetsDFTesting = SparkSession.read.json("/home/blade1/Documents/spark-sentiment-clustering/chandra_training_result.json")
     //val spark : SparkSession = SparkSession.builder.master("local[*]").getOrCreate
 
     val tweetsRDD = tweetsDF.rdd
@@ -39,7 +39,7 @@ object Evaluation extends StreamUtils {
         val label = row.getLong(0)
         val tweets = row.getString(2)
         (label, tweets.split(" ").toSeq)
-      } 
+      }
     )
 
     val bagOfWordtest = TestingRDD.map(
@@ -47,7 +47,7 @@ object Evaluation extends StreamUtils {
         val label = row.getLong(0)
         val tweets = row.getString(1)
         (label, tweets.split(" ").toSeq)
-      } 
+      }
     )
 
     val splits = bagOfWord.randomSplit(Array(0.8, 0.2), seed = 11L)
@@ -131,9 +131,9 @@ println(s"Weighted recall: ${metrics.weightedRecall}")
 println(s"Weighted F1 score: ${metrics.weightedFMeasure}")
 println(s"Weighted false positive rate: ${metrics.weightedFalsePositiveRate}")
 
-   // 
+   //
 //    val accuracy = 1.0 * predictionAndLabels.filter(x => x._1 == x._2).count() / test.count()
-    
+
     println("Training and Testing Complete, accuracy is = " + accuracy)
     println("\nSome Predictions:\n")
   }
