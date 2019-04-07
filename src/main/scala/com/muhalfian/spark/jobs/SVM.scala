@@ -76,7 +76,9 @@ object SVM extends StreamUtils {
       }
     )
 
-    println(predictionAndLabels)
+    predictionAndLabels.collect().foreach(println)
+
+
     //start evaluation with matric
     // Instantiate metrics object
     val metrics = new MulticlassMetrics(predictionAndLabels)
@@ -122,5 +124,8 @@ object SVM extends StreamUtils {
 
     println("Training and Testing Complete, accuracy is = " + accuracy)
     println("\nSome Predictions:\n")
+
+    // val labeledTweetsDf = SparkSession.createDataFrame(predictionAndLabels).toDF("tweets", "label")
+    // labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res_2.json")
   }
 }
