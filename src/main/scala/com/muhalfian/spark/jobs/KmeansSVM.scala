@@ -100,86 +100,88 @@ object KmeansSVM extends StreamUtils {
       (tweet, model.predict(hashingTF.transform(tweet.sliding(3).toSeq)))
     }
 
-    // ================= SVM ====================
 
-    val splits = labeledTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
-    val training = splits(0).cache()
-    val test = splits(1).map(
-      t => (t._2, t._1)
-    )
-
-    val training_labeled = training.map(
-      t => (t._2, hashingTF.transform(t._1))
-    ).map(
-      x => new LabeledPoint((x._1).toDouble, x._2)
-    )
-
-    println("\n\n************** Training **************\n\n")
-
-    // Run training algorithm to build the model
-    val modelSVM = new LogisticRegressionWithLBFGS()
-       .setNumClasses(3)
-       .run(training_labeled)
-
-    println("\n\n************** Testing **************\n\n")
-
-    val predictionAndLabels = test.map(
-      x => {
-        val prediction = modelSVM.predict(hashingTF.transform(x._2))
-        (prediction, x._1.toDouble)
-      }
-    )
-
-    // ====================== EVALUATION =========================
-
-    //start evaluation with matric
-    // Instantiate metrics object
-    val metrics = new MulticlassMetrics(predictionAndLabels)
-
-    // Confusion matrix
-    println("Confusion matrix:")
-    println(metrics.confusionMatrix)
-
-    // Overall Statistics
-    val accuracy = metrics.accuracy
-    println("Summary Statistics")
-    println(s"Accuracy = $accuracy")
-
-    // Precision by label
-    val labels = metrics.labels
-    labels.foreach { l =>
-      println(s"Precision($l) = " + metrics.precision(l))
-    }
-
-    // Recall by label
-    labels.foreach { l =>
-      println(s"Recall($l) = " + metrics.recall(l))
-    }
-
-    // False positive rate by label
-    labels.foreach { l =>
-      println(s"FPR($l) = " + metrics.falsePositiveRate(l))
-    }
-
-    // F-measure by label
-    labels.foreach { l =>
-      println(s"F1-Score($l) = " + metrics.fMeasure(l))
-    }
-
-    // Weighted stats
-    println(s"Weighted precision: ${metrics.weightedPrecision}")
-    println(s"Weighted recall: ${metrics.weightedRecall}")
-    println(s"Weighted F1 score: ${metrics.weightedFMeasure}")
-    println(s"Weighted false positive rate: ${metrics.weightedFalsePositiveRate}")
-
+    labeledTweets.collect.foreach(println)
+    // // ================= SVM ====================
     //
-    // val accuracy = 1.0 * predictionAndLabels.filter(x => x._1 == x._2).count() / test.count()
-
-    println("Training and Testing Complete, accuracy is = " + accuracy)
-
-    // val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
+    // val splits = labeledTweets.randomSplit(Array(0.8, 0.2), seed = 11L)
+    // val training = splits(0).cache()
+    // val test = splits(1).map(
+    //   t => (t._2, t._1)
+    // )
     //
-    // labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res_2.json")
+    // val training_labeled = training.map(
+    //   t => (t._2, hashingTF.transform(t._1))
+    // ).map(
+    //   x => new LabeledPoint((x._1).toDouble, x._2)
+    // )
+    //
+    // println("\n\n************** Training **************\n\n")
+    //
+    // // Run training algorithm to build the model
+    // val modelSVM = new LogisticRegressionWithLBFGS()
+    //    .setNumClasses(3)
+    //    .run(training_labeled)
+    //
+    // println("\n\n************** Testing **************\n\n")
+    //
+    // val predictionAndLabels = test.map(
+    //   x => {
+    //     val prediction = modelSVM.predict(hashingTF.transform(x._2))
+    //     (prediction, x._1.toDouble)
+    //   }
+    // )
+    //
+    // // ====================== EVALUATION =========================
+    //
+    // //start evaluation with matric
+    // // Instantiate metrics object
+    // val metrics = new MulticlassMetrics(predictionAndLabels)
+    //
+    // // Confusion matrix
+    // println("Confusion matrix:")
+    // println(metrics.confusionMatrix)
+    //
+    // // Overall Statistics
+    // val accuracy = metrics.accuracy
+    // println("Summary Statistics")
+    // println(s"Accuracy = $accuracy")
+    //
+    // // Precision by label
+    // val labels = metrics.labels
+    // labels.foreach { l =>
+    //   println(s"Precision($l) = " + metrics.precision(l))
+    // }
+    //
+    // // Recall by label
+    // labels.foreach { l =>
+    //   println(s"Recall($l) = " + metrics.recall(l))
+    // }
+    //
+    // // False positive rate by label
+    // labels.foreach { l =>
+    //   println(s"FPR($l) = " + metrics.falsePositiveRate(l))
+    // }
+    //
+    // // F-measure by label
+    // labels.foreach { l =>
+    //   println(s"F1-Score($l) = " + metrics.fMeasure(l))
+    // }
+    //
+    // // Weighted stats
+    // println(s"Weighted precision: ${metrics.weightedPrecision}")
+    // println(s"Weighted recall: ${metrics.weightedRecall}")
+    // println(s"Weighted F1 score: ${metrics.weightedFMeasure}")
+    // println(s"Weighted false positive rate: ${metrics.weightedFalsePositiveRate}")
+    //
+    // //
+    // // val accuracy = 1.0 * predictionAndLabels.filter(x => x._1 == x._2).count() / test.count()
+    //
+    // println("Training and Testing Complete, accuracy is = " + accuracy)
+    //
+    // // val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
+    // //
+    // // labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res_2.json")
 
   }
 }
