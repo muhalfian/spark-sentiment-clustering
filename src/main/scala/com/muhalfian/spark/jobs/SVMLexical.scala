@@ -37,7 +37,7 @@ object SVMLexical extends StreamUtils {
       }
     )
 
-    val splits = bagOfWord.randomSplit(Array(0.7, 0.3), seed = 11L)
+    val splits = bagOfWord.randomSplit(Array(0.8, 0.2), seed = 11L)
     val training = splits(0).cache()
     val test = splits(1).cache()
 
