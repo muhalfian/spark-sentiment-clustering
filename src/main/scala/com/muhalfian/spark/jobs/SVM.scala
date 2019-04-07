@@ -17,7 +17,7 @@ import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.mllib.util.MLUtils
 
-object Evaluation extends StreamUtils {
+object SVM extends StreamUtils {
 
   def main(args: Array[String]): Unit = {
 
