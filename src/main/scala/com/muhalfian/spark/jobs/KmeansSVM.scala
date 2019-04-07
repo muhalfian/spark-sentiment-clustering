@@ -18,7 +18,7 @@ import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructT
 
 import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
 
-object Preprocessing extends StreamUtils {
+object KmeansSVM extends StreamUtils {
 
   def main(args: Array[String]): Unit = {
 
@@ -78,31 +78,102 @@ object Preprocessing extends StreamUtils {
             val cleanedMsg = processedTweet.mkString(" ")
             //(cleanedMsg.split(" ").toSeq)
             (cleanedMsg)
+            }
           }
-        }
-      )
+        )
 
-val exceptions = goodBadTweets.filter(_.isFailure)
-//println("Total tweets with exceptions: "+ exceptions.count())
-val finalTweets = goodBadTweets.filter(_.isSuccess).map(_.get)
-// println("Total clean tweets: "+ finalTweets.count())
-// finalTweets.take(5).foreach(x => println(x))
+    val exceptions = goodBadTweets.filter(_.isFailure)
+    //println("Total tweets with exceptions: "+ exceptions.count())
+    val finalTweets = goodBadTweets.filter(_.isSuccess).map(_.get)
+    // println("Total clean tweets: "+ finalTweets.count())
+    // finalTweets.take(5).foreach(x => println(x))
 
-val hashingTF = new HashingTF(2000)
-val vectors = finalTweets.map(
-  t => (hashingTF.transform(t.sliding(3).toSeq))
-).cache()
-vectors.count()
+    val hashingTF = new HashingTF(2000)
+    val vectors = finalTweets.map(
+      t => (hashingTF.transform(t.sliding(3).toSeq))
+    ).cache()
+    vectors.count()
 
-val model = KMeans.train(vectors, numClusters, numIterations)
+    val model = KMeans.train(vectors, numClusters, numIterations)
 
-val labeledTweets = finalTweets.map{ case(tweet) =>
-  (tweet, model.predict(hashingTF.transform(tweet.sliding(3).toSeq)))
-}
+    val labeledTweets = finalTweets.map{ case(tweet) =>
+      (tweet, model.predict(hashingTF.transform(tweet.sliding(3).toSeq)))
+    }
 
-val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
+    // ================= SVM ====================
 
-labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res_2.json")
+    val training_labeled = labeledTweets.map(
+      t => (t._2, hashingTF.transform(t._1))
+    ).map(
+      x => new LabeledPoint((x._1).toDouble, x._2)
+    )
+
+    println("\n\n************** Training **************\n\n")
+
+    // Run training algorithm to build the model
+    val model = new LogisticRegressionWithLBFGS()
+       .setNumClasses(3)
+       .run(training_labeled)
+
+    println("\n\n************** Testing **************\n\n")
+
+    val predictionAndLabels = test.map(
+      x => {
+        val prediction = model.predict(hashingTF.transform(x._2))
+        (prediction, x._1.toDouble)
+      }
+    )
+
+    // ====================== EVALUATION =========================
+
+    //start evaluation with matric
+    // Instantiate metrics object
+    val metrics = new MulticlassMetrics(predictionAndLabels)
+
+    // Confusion matrix
+    println("Confusion matrix:")
+    println(metrics.confusionMatrix)
+
+    // Overall Statistics
+    val accuracy = metrics.accuracy
+    println("Summary Statistics")
+    println(s"Accuracy = $accuracy")
+
+    // Precision by label
+    val labels = metrics.labels
+    labels.foreach { l =>
+      println(s"Precision($l) = " + metrics.precision(l))
+    }
+
+    // Recall by label
+    labels.foreach { l =>
+      println(s"Recall($l) = " + metrics.recall(l))
+    }
+
+    // False positive rate by label
+    labels.foreach { l =>
+      println(s"FPR($l) = " + metrics.falsePositiveRate(l))
+    }
+
+    // F-measure by label
+    labels.foreach { l =>
+      println(s"F1-Score($l) = " + metrics.fMeasure(l))
+    }
+
+    // Weighted stats
+    println(s"Weighted precision: ${metrics.weightedPrecision}")
+    println(s"Weighted recall: ${metrics.weightedRecall}")
+    println(s"Weighted F1 score: ${metrics.weightedFMeasure}")
+    println(s"Weighted false positive rate: ${metrics.weightedFalsePositiveRate}")
+
+    //
+    // val accuracy = 1.0 * predictionAndLabels.filter(x => x._1 == x._2).count() / test.count()
+
+    println("Training and Testing Complete, accuracy is = " + accuracy)
+
+    // val labeledTweetsDf = SparkSession.createDataFrame(labeledTweets).toDF("tweets", "label")
+    //
+    // labeledTweetsDf.coalesce(2).write.format("json").save("/home/blade1/Documents/spark-sentiment-clustering/db/chandra_training_res_2.json")
 
   }
 }
