@@ -76,7 +76,7 @@ object SVMChandra extends StreamUtils {
       }
     )
 
-    predictionAndLabels.collect().foreach(println)
+    // predictionAndLabels.collect().foreach(println)
 
 
     //start evaluation with matric
