@@ -17,6 +17,8 @@ import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.mllib.util.MLUtils
 
+import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
+
 object Kmeans extends StreamUtils {
 
   def main(args: Array[String]): Unit = {
@@ -43,14 +45,19 @@ object Kmeans extends StreamUtils {
 
     val hashingTF = new HashingTF(2000)
 
+    // val vectors = bagOfWord.map(
+    //   t => (hashingTF.transform(t.sliding(3).toSeq))
+    // ).cache()
+    // vectors.count()
+
     val vectors = bagOfWord.map(
-      t => (hashingTF.transform(t.sliding(3).toSeq))
+      t => (hashingTF.transform(t._2))
     ).cache()
     vectors.count()
 
     val model = KMeans.train(vectors, numClusters, numIterations)
 
-    val labeledTweets = finalTweets.map{ case(tweet) =>
+    val labeledTweets = bagOfWord.map{ case(tweet) =>
       (tweet, model.predict(hashingTF.transform(tweet.sliding(3).toSeq)))
     }
 
